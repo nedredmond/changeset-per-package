@@ -37,15 +37,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: npm
+          cache: yarn
 
       - name: Install Dependencies
         id: install
-        run: npm ci
+        run: yarn ci
 
       - name: Build dist/ Directory
         id: build
-        run: npm run bundle
+        run: yarn bundle
 
       - name: Compare Expected and Actual Directories
         id: diff

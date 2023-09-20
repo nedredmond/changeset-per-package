@@ -28,11 +28,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: npm
+          cache: yarn
 
       - name: Install Dependencies
         id: install
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Lint Code Base
         id: super-linter

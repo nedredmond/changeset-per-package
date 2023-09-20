@@ -30,7 +30,7 @@ const contextData: Context = {
 describe('utils', () => {
   describe('getBaseAndHead', () => {
     it('returns for event name "pull_request_target"', () => {
-      let context: Context = {
+      const context: Context = {
         ...contextData,
         eventName: 'pull_request_target',
         payload: {
@@ -58,7 +58,7 @@ describe('utils', () => {
       expect(getBaseAndHead(context)).toEqual(['refs/heads/master', 'sha1'])
     })
     it('returns for event name "pull_request"', () => {
-      let context: Context = {
+      const context: Context = {
         ...contextData,
         eventName: 'pull_request',
         payload: {
@@ -86,7 +86,7 @@ describe('utils', () => {
       expect(getBaseAndHead(context)).toEqual(['refs/heads/master', 'sha1'])
     })
     it('returns for event name "push"', () => {
-      let context: Context = {
+      const context: Context = {
         ...contextData,
         eventName: 'push',
         payload: {
@@ -107,7 +107,7 @@ describe('utils', () => {
       expect(getBaseAndHead(context)).toEqual(['sha0', 'sha1'])
     })
     it('returns empty for other event names', () => {
-      let context: Context = {
+      const context: Context = {
         ...contextData,
         eventName: 'whatever',
         payload: {
