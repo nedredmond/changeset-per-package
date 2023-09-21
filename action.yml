@@ -16,4 +16,4 @@ runs:
     - name: Veryify changeset entries
       uses: ./actions/verify-per-package
       with:
-        changed_files: ${{ github.event.inputs.changed_files }}
+        changed_files: ${{ inputs.changed_files }}
