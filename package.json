@@ -70,6 +70,7 @@
     "@actions/github": "^5.1.1"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@types/jest": "^29.5.5",
     "@types/node": "^20.6.3",
     "@typescript-eslint/eslint-plugin": "^6.7.2",
