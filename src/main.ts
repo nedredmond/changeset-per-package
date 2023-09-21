@@ -81,6 +81,7 @@ export async function run(): Promise<void> {
 
     // right now, the only way to access JSON output is to create a file,
     //   so we are just going to work with the pretty-printed output
+    await exec.exec(`yarn add @changesets/cli@latest --dev`)
     const changesetResult = await exec.getExecOutput(
       `yarn changeset status --since ${base}`
     )

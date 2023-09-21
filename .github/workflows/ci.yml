@@ -49,10 +49,6 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
-        id: yarn-ci
-        run: yarn install --frozen-lockfile
-
       - name: Test Local Action
         id: test-action
         uses: ./
