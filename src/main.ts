@@ -85,24 +85,19 @@ export async function run(): Promise<void> {
     const changesetResult = await exec.getExecOutput(
       `yarn changeset status --since origin/${base}`
     )
-
-    if (changesetResult.exitCode !== 0) {
-      core.setFailed(changesetResult.stderr)
-    }
-    if (!changesetResult.stdout) {
-      core.setFailed(
-        `Changeset entries are required for the following packages: ${packageNamesArray.join(
-          ', '
-        )}`
-      )
-    }
+    // Note that a lack of a changeset file will result in a non-zero exit code;
+    //   we are going to ignore that for now and handle the output below to get
+    //   our error message
 
     // parse out the package names from the pretty-printed changeset output
-    const changesetEntries = changesetResult.stdout
-      .split('\n')
-      .map((line: string) => line.trim())
-      .filter((line: string) => line.startsWith('🦋  - '))
-      .map((line: string) => line.replace('🦋  - ', ''))
+    const changesetEntries =
+      changesetResult.exitCode === 1
+        ? []
+        : changesetResult.stdout
+            .split('\n')
+            .map((line: string) => line.trim())
+            .filter((line: string) => line.startsWith('🦋  - '))
+            .map((line: string) => line.replace('🦋  - ', ''))
 
     const changesetEntriesNeeded = packageNamesArray.filter(
       packageName => !changesetEntries.includes(packageName)
