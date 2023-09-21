@@ -52,13 +52,3 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
-
-      - name: Print Success
-        if: success()
-        id: success
-        run: echo "Success"
-
-      - name: Print Failure
-        if: failure()
-        id: failure
-        run: echo "Failure"
