@@ -63,7 +63,7 @@ describe('action', () => {
               sha: '1234567890'
             },
             base: {
-              sha: '0987654321'
+              ref: 'main'
             }
           }
         }
@@ -171,7 +171,7 @@ describe('action', () => {
               sha: '1234567890'
             },
             base: {
-              sha: '0987654321'
+              ref: 'main'
             }
           }
         }
@@ -218,7 +218,7 @@ describe('action', () => {
               sha: '1234567890'
             },
             base: {
-              sha: '0987654321'
+              ref: 'main'
             }
           }
         }
@@ -268,7 +268,7 @@ describe('action', () => {
               sha: '1234567890'
             },
             base: {
-              sha: '0987654321'
+              ref: 'main'
             }
           }
         }
@@ -303,7 +303,7 @@ describe('action', () => {
               sha: '1234567890'
             },
             base: {
-              sha: '0987654321'
+              ref: 'main'
             }
           }
         }

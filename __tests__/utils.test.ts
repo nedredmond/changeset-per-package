@@ -36,7 +36,7 @@ describe('utils', () => {
         payload: {
           pull_request: {
             base: {
-              sha: 'sha0'
+              ref: 'refs/heads/master'
             },
             head: {
               sha: 'sha1'
@@ -55,7 +55,7 @@ describe('utils', () => {
           repo: ''
         }
       }
-      expect(getBaseAndHead(context)).toEqual(['sha0', 'sha1'])
+      expect(getBaseAndHead(context)).toEqual(['refs/heads/master', 'sha1'])
     })
     it('returns for event name "pull_request"', () => {
       const context: Context = {
@@ -64,7 +64,7 @@ describe('utils', () => {
         payload: {
           pull_request: {
             base: {
-              sha: 'sha0'
+              ref: 'refs/heads/master'
             },
             head: {
               sha: 'sha1'
@@ -83,7 +83,7 @@ describe('utils', () => {
           repo: ''
         }
       }
-      expect(getBaseAndHead(context)).toEqual(['sha0', 'sha1'])
+      expect(getBaseAndHead(context)).toEqual(['refs/heads/master', 'sha1'])
     })
     it('returns for event name "push"', () => {
       const context: Context = {
@@ -115,7 +115,7 @@ describe('utils', () => {
           after: 'sha1',
           pull_request: {
             base: {
-              sha: 'sha0'
+              ref: 'refs/heads/master'
             },
             head: {
               sha: 'sha1'
