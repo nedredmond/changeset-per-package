@@ -53,8 +53,14 @@ jobs:
         id: test-action
         uses: ./
         with:
-          changed_files: ''
+          changed_files: '[]'
 
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+      - name: Print Success
+        if: success()
+        id: success
+        run: echo "Success"
+
+      - name: Print Failure
+        if: failure()
+        id: failure
+        run: echo "Failure"
