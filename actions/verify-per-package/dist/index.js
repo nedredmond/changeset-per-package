@@ -10954,7 +10954,7 @@ async function run() {
         }
         // right now, the only way to access JSON output is to create a file,
         //   so we are just going to work with the pretty-printed output
-        const changesetResult = await exec.getExecOutput(`npx changeset status --since ${base}`);
+        const changesetResult = await exec.getExecOutput(`yarn changeset status --since ${base}`);
         if (changesetResult.exitCode !== 0) {
             core.setFailed(changesetResult.stderr);
         }

@@ -82,7 +82,7 @@ export async function run(): Promise<void> {
     // right now, the only way to access JSON output is to create a file,
     //   so we are just going to work with the pretty-printed output
     const changesetResult = await exec.getExecOutput(
-      `npx changeset status --since ${base}`
+      `yarn changeset status --since ${base}`
     )
 
     if (changesetResult.exitCode !== 0) {
