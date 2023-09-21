@@ -5,7 +5,7 @@ export const getBaseAndHead = (context: Context): string[] => {
     case 'pull_request_target':
     case 'pull_request':
       return [
-        context.payload.pull_request?.base?.ref,
+        context.payload.pull_request?.base?.sha,
         context.payload.pull_request?.head?.sha
       ]
     case 'push':

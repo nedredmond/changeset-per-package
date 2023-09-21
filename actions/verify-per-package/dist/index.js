@@ -10912,13 +10912,13 @@ async function run() {
             core.info('Release PR detected. Skipping.');
             return;
         }
-        const packageNames = new Set();
         // relies on the repo having yarn...
         //   a future enhancement would be to determine the package manager and use that
         const workspacesResult = await exec.getExecOutput(`yarn workspaces --json info`);
         if (workspacesResult.exitCode !== 0) {
             core.setFailed(workspacesResult.stderr);
         }
+        const packageNames = new Set();
         const workspacesInfo = JSON.parse(JSON.parse(workspacesResult.stdout).data);
         const workspaces = Object.keys(workspacesInfo).map(name => ({
             name,
@@ -10997,7 +10997,7 @@ const getBaseAndHead = (context) => {
         case 'pull_request_target':
         case 'pull_request':
             return [
-                context.payload.pull_request?.base?.ref,
+                context.payload.pull_request?.base?.sha,
                 context.payload.pull_request?.head?.sha
             ];
         case 'push':
