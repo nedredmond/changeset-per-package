@@ -9,10 +9,10 @@ been changed.
 
 This repository has two action files:
 
-| File                                                                                 | Description                                                                                                                                                                               |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`./action.yml`](./action.yml)                                                       | This composite action calls on other Khan actions to prepare a list of changed files.                                                                                                     |
-| [`./actions/verify-per-package/action.yml`](./actions/verify-per-package/action.yml) | This ts action contains its logic to [`./src/main.ts`](./src/main.ts). It checks for packages corresponding to changed files, then determines if there is a match for each in changesets. |
+| File                                         | Description                                                                                                                                                                               |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`./action.yml`](./action.yml)               | This composite action calls on other Khan actions to prepare a list of changed files.                                                                                                     |
+| [`./verify/action.yml`](./verify/action.yml) | This ts action contains its logic to [`./src/main.ts`](./src/main.ts). It checks for packages corresponding to changed files, then determines if there is a match for each in changesets. |
 
 ## When Making Changes
 
@@ -41,5 +41,5 @@ steps:
 
   - name: Verify Changeset Per Package
     id: changeset-per-package
-    uses: Khan/changeset-per-package@v1 # Commit with the `v1` tag
+    uses: Khan/changeset-per-package@v0.0.0 # Commit with the `v1` tag
 ```
