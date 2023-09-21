@@ -14,7 +14,9 @@ import * as utils from '../src/utils'
 
 // Mock the GitHub Actions core library
 const infoMock = jest.spyOn(core, 'info')
-const setFailedMock = jest.spyOn(core, 'setFailed')
+const setFailedMock = jest
+  .spyOn(core, 'setFailed')
+  .mockImplementation(console.debug)
 const inputMock = jest
   .spyOn(core, 'getInput')
   .mockImplementation((name: string): string => {

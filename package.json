@@ -29,7 +29,7 @@
     "format:write": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
     "lint": "npx eslint . -c ./.github/linters/.eslintrc.yml",
-    "package": "ncc build src/index.ts --license licenses.txt",
+    "package": "ncc build src/index.ts --out sub-actions/verify-per-package/dist --license licenses.txt",
     "package:watch": "yarn package -- --watch",
     "test": "(jest && make-coverage-badge --output-path ./badges/coverage.svg) || make-coverage-badge --output-path ./badges/coverage.svg",
     "all": "yarn format:write && yarn lint && yarn test && yarn package"
@@ -70,6 +70,7 @@
     "@actions/github": "^5.1.1"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
     "@types/jest": "^29.5.5",
     "@types/node": "^20.6.3",
     "@typescript-eslint/eslint-plugin": "^6.7.2",

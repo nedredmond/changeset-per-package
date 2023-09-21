@@ -1,0 +1,12 @@
+name: 'Ensure there is a valid changeset entry for each package'
+description: 'Fail if there is not a valid changeset entry for each package.'
+author: 'Ned Redmond'
+
+inputs:
+  changed_files:
+    description: list of changed files
+    required: true
+
+runs:
+  using: node20
+  main: dist/index.js

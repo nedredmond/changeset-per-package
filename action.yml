@@ -4,9 +4,16 @@ author: 'Ned Redmond'
 
 inputs:
   changed_files:
-    description: list of changed files
+    description: JSON list of changed files
     required: true
 
 runs:
-  using: node20
-  main: dist/index.js
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Veryify changeset entries
+      uses: ./actions/verify-per-package
+      with:
+        changed_files: ${{ inputs.changed_files }}
