@@ -110,6 +110,7 @@ export async function run(): Promise<void> {
           ', '
         )} because there have been changes since the last release.`
       )
+      return
     }
 
     core.info('All packages have changeset entries')

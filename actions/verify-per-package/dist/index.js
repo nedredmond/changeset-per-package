@@ -10967,6 +10967,7 @@ async function run() {
         const changesetEntriesNeeded = packageNamesArray.filter(packageName => !changesetEntries.includes(packageName));
         if (changesetEntriesNeeded.length) {
             core.setFailed(`Changeset entry required for ${changesetEntriesNeeded.join(', ')} because there have been changes since the last release.`);
+            return;
         }
         core.info('All packages have changeset entries');
     }
