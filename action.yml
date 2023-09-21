@@ -45,6 +45,6 @@ runs:
         globs: ${{ inputs.exclude_globs }}
 
     - name: Veryify changeset entries
-      uses: ./actions/verify-per-package
+      uses: ${{ github.action_path }}/actions/verify-per-package
       with:
         changed_files: ${{ steps.match.outputs.filtered }}
