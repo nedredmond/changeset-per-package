@@ -83,7 +83,7 @@ export async function run(): Promise<void> {
     //   so we are just going to work with the pretty-printed output
     await exec.exec(`yarn add @changesets/cli@latest -W`)
     const changesetResult = await exec.getExecOutput(
-      `yarn changeset status --since ${base}`
+      `yarn changeset status --since origin/${base}`
     )
 
     if (changesetResult.exitCode !== 0) {
