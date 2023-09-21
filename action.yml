@@ -25,17 +25,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    checkout:
-      name: Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    changed:
-      name: Get changed files
+    - name: Get changed files
       uses: khan/get-changed-files@v1
+      id: changed
 
-    filtered:
-      name: Filter out files that don't need a changeset
+    - name: Filter out files that don't need a changeset
       uses: khan/filter-files@v0
+      id: match
       with:
         changed-files: ${{ steps.changed.outputs.files }}
         invert: true
@@ -43,8 +42,7 @@ runs:
         extensions: ${{ inputs.exclude_extensions }}
         globs: ${{ inputs.exclude_globs }}
 
-    verify:
-      name: Veryify changeset entries
+    - name: Veryify changeset entries
       uses: ./actions/verify-per-package
       with:
         changed_files: ${{ steps.match.outputs.filtered }}
