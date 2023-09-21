@@ -29,7 +29,7 @@
     "format:write": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
     "lint": "npx eslint . -c ./.github/linters/.eslintrc.yml",
-    "package": "ncc build src/index.ts -m -o actions/verify-per-package/dist --license licenses.txt",
+    "package": "ncc build src/index.ts -o actions/verify-per-package/dist --license licenses.txt",
     "package:watch": "yarn package -- --watch",
     "test": "(jest && make-coverage-badge --output-path ./badges/coverage.svg) || make-coverage-badge --output-path ./badges/coverage.svg",
     "all": "yarn format:write && yarn lint && yarn test && yarn package"
