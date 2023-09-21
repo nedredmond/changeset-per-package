@@ -1,0 +1,5 @@
+{
+  "name": "mock-workspace",
+  "version": "1.0.0",
+  "description": "Just here for workflow test. See `.github/workflows/ci.yml`"
+}
