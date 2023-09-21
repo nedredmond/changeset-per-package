@@ -15,17 +15,19 @@ import * as utils from '../src/utils'
 // Mock the GitHub Actions core library
 const infoMock = jest.spyOn(core, 'info')
 const setFailedMock = jest.spyOn(core, 'setFailed')
-jest.spyOn(core, 'getInput').mockImplementation((name: string): string => {
-  switch (name) {
-    case 'changed_files':
-      return JSON.stringify([
-        './packages/pkg1/file1.css',
-        './packages/pkgB/file2.tsx'
-      ])
-    default:
-      return ''
-  }
-})
+const inputMock = jest
+  .spyOn(core, 'getInput')
+  .mockImplementation((name: string): string => {
+    switch (name) {
+      case 'changed_files':
+        return JSON.stringify([
+          './packages/pkg1/file1.css',
+          './packages/pkgB/file2.tsx'
+        ])
+      default:
+        return ''
+    }
+  })
 
 const getExecOutputMock = jest.spyOn(exec, 'getExecOutput')
 
@@ -115,7 +117,177 @@ describe('action', () => {
     )
   })
 
-  it('fails when there is no base refere', async () => {
+  it('skips without failure when there are no changed files', async () => {
+    // Arrange
+    inputMock.mockImplementationOnce(() => JSON.stringify([]))
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).not.toHaveBeenCalled()
+    expect(infoMock).toHaveBeenCalledWith('No changed files found. Skipping.')
+  })
+
+  it('skips without failure for release pr', async () => {
+    // Arrange
+    // Arrange
+    Object.defineProperty(github, 'context', {
+      value: {
+        ...originalContext,
+        eventName: 'pull_request',
+        payload: {
+          pull_request: {
+            head: {
+              ref: 'changeset-release/main'
+            }
+          }
+        }
+      }
+    })
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).not.toHaveBeenCalled()
+    expect(infoMock).toHaveBeenCalledWith('Release PR detected. Skipping.')
+  })
+
+  it('skips without failure when there are no packages found for changed files', async () => {
+    // Arrange
+    Object.defineProperty(github, 'context', {
+      value: {
+        ...originalContext,
+        eventName: 'pull_request',
+        payload: {
+          pull_request: {
+            head: {
+              sha: '1234567890'
+            },
+            base: {
+              ref: 'main'
+            }
+          }
+        }
+      }
+    })
+    getExecOutputMock
+      // workspaces info
+      .mockImplementationOnce(async () => ({
+        stdout: JSON.stringify({
+          type: 'log',
+          data: JSON.stringify({
+            '@owner/pkg3': {
+              location: './packages/pkg3'
+            },
+            '@owner/pkgC': {
+              location: './packages/pkgC'
+            }
+          })
+        }),
+        stderr: '',
+        exitCode: 0
+      }))
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).not.toHaveBeenCalled()
+
+    // Verify that all of the core library functions were called correctly
+    expect(infoMock).toHaveBeenCalledWith('No packages to verify. Skipping.')
+  })
+
+  it('fails when changeset CLI call fails', async () => {
+    // Arrange
+    Object.defineProperty(github, 'context', {
+      value: {
+        ...originalContext,
+        eventName: 'pull_request',
+        payload: {
+          pull_request: {
+            head: {
+              sha: '1234567890'
+            },
+            base: {
+              ref: 'main'
+            }
+          }
+        }
+      }
+    })
+    getExecOutputMock
+      // workspaces info
+      .mockImplementationOnce(async () => ({
+        stdout: JSON.stringify({
+          type: 'log',
+          data: JSON.stringify({
+            '@owner/pkg1': {
+              location: './packages/pkg1'
+            },
+            '@owner/pkgB': {
+              location: './packages/pkgB'
+            }
+          })
+        }),
+        stderr: '',
+        exitCode: 0
+      }))
+      // changeset info
+      .mockImplementationOnce(async () => ({
+        stdout: '',
+        stderr: 'Oopsie!',
+        exitCode: 1
+      }))
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenCalledWith('Oopsie!')
+  })
+
+  it('fails when workspaces CLI call fails', async () => {
+    // Arrange
+    Object.defineProperty(github, 'context', {
+      value: {
+        ...originalContext,
+        eventName: 'pull_request',
+        payload: {
+          pull_request: {
+            head: {
+              sha: '1234567890'
+            },
+            base: {
+              ref: 'main'
+            }
+          }
+        }
+      }
+    })
+    getExecOutputMock
+      // workspaces info
+      .mockImplementationOnce(async () => ({
+        stdout: '',
+        stderr: 'Oopsie!',
+        exitCode: 1
+      }))
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenCalledWith('Oopsie!')
+  })
+
+  it('fails when there is no base ref', async () => {
     // Arrange
     jest.spyOn(utils, 'getBaseAndHead').mockImplementation(() => [])
     Object.defineProperty(github, 'context', {

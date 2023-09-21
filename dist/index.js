@@ -10905,20 +10905,21 @@ async function run() {
         const { context } = github;
         const changedFiles = JSON.parse(core.getInput('changed_files'));
         if (!changedFiles.length) {
-            // no relevant files changed, ignore
+            core.info('No changed files found. Skipping.');
             return;
         }
-        if (context.payload?.pull_request?.head.ref === 'changeset-release/main') {
-            return; // release PRs don't need changesets.
+        if (context.payload?.pull_request?.head.ref?.startsWith('changeset-release')) {
+            core.info('Release PR detected. Skipping.');
+            return;
         }
         const packageNames = new Set();
         // relies on the repo having yarn...
         //   a future enhancement would be to determine the package manager and use that
-        const { stdout: workspacesJson, stderr: workspacesErr } = await exec.getExecOutput(`yarn workspaces --json info`);
-        if (workspacesErr) {
-            core.setFailed(workspacesErr);
+        const workspacesResult = await exec.getExecOutput(`yarn workspaces --json info`);
+        if (workspacesResult.exitCode !== 0) {
+            core.setFailed(workspacesResult.stderr);
         }
-        const workspacesInfo = JSON.parse(JSON.parse(workspacesJson).data);
+        const workspacesInfo = JSON.parse(JSON.parse(workspacesResult.stdout).data);
         const workspaces = Object.keys(workspacesInfo).map(name => ({
             name,
             ...workspacesInfo[name]
@@ -10941,7 +10942,7 @@ async function run() {
         }
         const packageNamesArray = Array.from(packageNames);
         if (!packageNames.size) {
-            core.info('No packages to verify');
+            core.info('No packages to verify. Skipping.');
             return;
         }
         core.info(`Packages to verify: ${packageNamesArray.join(', ')}`);
@@ -10953,14 +10954,15 @@ async function run() {
         }
         // right now, the only way to access JSON output is to create a file,
         //   so we are just going to work with the pretty-printed output
-        const { stdout: changesetOutput, stderr: changesetErr } = await exec.getExecOutput(`yarn changeset status --since ${base}`);
-        if (changesetErr) {
-            core.setFailed(changesetErr);
+        const changesetResult = await exec.getExecOutput(`yarn changeset status --since ${base}`);
+        if (changesetResult.exitCode !== 0) {
+            core.setFailed(changesetResult.stderr);
         }
-        if (!changesetOutput) {
+        if (!changesetResult.stdout) {
             core.setFailed(`Changeset entries are required for the following packages: ${packageNamesArray.join(', ')}`);
         }
-        const changesetEntries = changesetOutput
+        // parse out the package names from the pretty-printed changeset output
+        const changesetEntries = changesetResult.stdout
             .split('\n')
             .map((line) => line.trim())
             .filter((line) => line.startsWith('🦋  - '))
