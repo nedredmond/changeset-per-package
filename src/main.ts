@@ -27,6 +27,8 @@ export async function run(): Promise<void> {
       return
     }
 
+    const packageNames = new Set<string>()
+
     // relies on the repo having yarn...
     //   a future enhancement would be to determine the package manager and use that
     const workspacesResult = await exec.getExecOutput(
@@ -36,8 +38,6 @@ export async function run(): Promise<void> {
     if (workspacesResult.exitCode !== 0) {
       core.setFailed(workspacesResult.stderr)
     }
-
-    const packageNames = new Set<string>()
 
     const workspacesInfo = JSON.parse(JSON.parse(workspacesResult.stdout).data)
     const workspaces = Object.keys(workspacesInfo).map(name => ({
