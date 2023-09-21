@@ -52,8 +52,6 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
-        with:
-          changed_files: '[]'
 
       - name: Print Success
         if: success()
