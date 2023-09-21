@@ -35,10 +35,6 @@ export async function run(): Promise<void> {
       `yarn workspaces --json info`
     )
 
-    if (workspacesResult.exitCode !== 0) {
-      core.setFailed(workspacesResult.stderr)
-    }
-
     const workspacesInfo = JSON.parse(JSON.parse(workspacesResult.stdout).data)
     const workspaces = Object.keys(workspacesInfo).map(name => ({
       name,
@@ -81,27 +77,28 @@ export async function run(): Promise<void> {
 
     // right now, the only way to access JSON output is to create a file,
     //   so we are just going to work with the pretty-printed output
+    await exec.exec(`yarn add @changesets/cli@latest -W`)
     const changesetResult = await exec.getExecOutput(
-      `yarn changeset status --since ${base}`
+      `yarn changeset status --since origin/${base}`,
+      undefined,
+      { ignoreReturnCode: true }
     )
 
-    if (changesetResult.exitCode !== 0) {
-      core.setFailed(changesetResult.stderr)
-    }
-    if (!changesetResult.stdout) {
-      core.setFailed(
-        `Changeset entries are required for the following packages: ${packageNamesArray.join(
-          ', '
-        )}`
+    if (changesetResult.exitCode === 1) {
+      core.debug(
+        `Changeset status failed; that could mean there is no changeset file, or that there was an error.`
       )
     }
 
     // parse out the package names from the pretty-printed changeset output
-    const changesetEntries = changesetResult.stdout
-      .split('\n')
-      .map((line: string) => line.trim())
-      .filter((line: string) => line.startsWith('🦋  - '))
-      .map((line: string) => line.replace('🦋  - ', ''))
+    const changesetEntries =
+      changesetResult.exitCode === 1
+        ? []
+        : changesetResult.stdout
+            .split('\n')
+            .map((line: string) => line.trim())
+            .filter((line: string) => line.startsWith('🦋  - '))
+            .map((line: string) => line.replace('🦋  - ', ''))
 
     const changesetEntriesNeeded = packageNamesArray.filter(
       packageName => !changesetEntries.includes(packageName)
@@ -113,6 +110,7 @@ export async function run(): Promise<void> {
           ', '
         )} because there have been changes since the last release.`
       )
+      return
     }
 
     core.info('All packages have changeset entries')

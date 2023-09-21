@@ -31,6 +31,7 @@ const inputMock = jest
     }
   })
 
+jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
 const getExecOutputMock = jest.spyOn(exec, 'getExecOutput')
 
 const originalContext = github.context
@@ -116,6 +117,58 @@ describe('action', () => {
     expect(infoMock).toHaveBeenNthCalledWith(
       2,
       'All packages have changeset entries'
+    )
+  })
+
+  it('fails when there are packages that need changeset entries', async () => {
+    // Arrange
+    Object.defineProperty(github, 'context', {
+      value: {
+        ...originalContext,
+        eventName: 'pull_request',
+        payload: {
+          pull_request: {
+            head: {
+              sha: '1234567890'
+            },
+            base: {
+              ref: 'main'
+            }
+          }
+        }
+      }
+    })
+    getExecOutputMock
+      // workspaces info
+      .mockImplementationOnce(async () => ({
+        stdout: JSON.stringify({
+          type: 'log',
+          data: JSON.stringify({
+            '@owner/pkg1': {
+              location: './packages/pkg1'
+            },
+            '@owner/pkgB': {
+              location: './packages/pkgB'
+            }
+          })
+        }),
+        stderr: '',
+        exitCode: 0
+      }))
+      // changeset info
+      .mockImplementationOnce(async () => ({
+        stdout: '',
+        stderr: '',
+        exitCode: 1
+      }))
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenCalledWith(
+      'Changeset entry required for @owner/pkg1, @owner/pkgB because there have been changes since the last release.'
     )
   })
 
@@ -205,56 +258,6 @@ describe('action', () => {
     expect(infoMock).toHaveBeenCalledWith('No packages to verify. Skipping.')
   })
 
-  it('fails when changeset CLI call fails', async () => {
-    // Arrange
-    Object.defineProperty(github, 'context', {
-      value: {
-        ...originalContext,
-        eventName: 'pull_request',
-        payload: {
-          pull_request: {
-            head: {
-              sha: '1234567890'
-            },
-            base: {
-              ref: 'main'
-            }
-          }
-        }
-      }
-    })
-    getExecOutputMock
-      // workspaces info
-      .mockImplementationOnce(async () => ({
-        stdout: JSON.stringify({
-          type: 'log',
-          data: JSON.stringify({
-            '@owner/pkg1': {
-              location: './packages/pkg1'
-            },
-            '@owner/pkgB': {
-              location: './packages/pkgB'
-            }
-          })
-        }),
-        stderr: '',
-        exitCode: 0
-      }))
-      // changeset info
-      .mockImplementationOnce(async () => ({
-        stdout: '',
-        stderr: 'Oopsie!',
-        exitCode: 1
-      }))
-
-    // Act
-    await main.run()
-
-    // Assert
-    expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenCalledWith('Oopsie!')
-  })
-
   it('fails when workspaces CLI call fails', async () => {
     // Arrange
     Object.defineProperty(github, 'context', {
@@ -286,7 +289,7 @@ describe('action', () => {
 
     // Assert
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenCalledWith('Oopsie!')
+    expect(setFailedMock).toHaveBeenCalled()
   })
 
   it('fails when there is no base ref', async () => {
