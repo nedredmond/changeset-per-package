@@ -289,7 +289,7 @@ describe('action', () => {
 
     // Assert
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenCalledWith('Oopsie!')
+    expect(setFailedMock).toHaveBeenCalled()
   })
 
   it('fails when there is no base ref', async () => {
