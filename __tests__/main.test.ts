@@ -31,6 +31,7 @@ const inputMock = jest
     }
   })
 
+jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
 const getExecOutputMock = jest.spyOn(exec, 'getExecOutput')
 
 const originalContext = github.context
