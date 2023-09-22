@@ -9,10 +9,10 @@ been changed.
 
 This repository has two action files:
 
-| File                                                                       | Description                                                                                                                                                                               |
-| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`action.yml`](./action.yml)                                             | This composite action calls on other Khan actions to prepare a list of changed files.                                                                                                     |
-| [`changeset-per-package/action.yml`](./changeset-per-package/action.yml) | This ts action contains its logic to [`./src/main.ts`](./src/main.ts). It checks for packages corresponding to changed files, then determines if there is a match for each in changesets. |
+| File                                                                                 | Description                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`./action.yml`](./action.yml)                                                       | This composite action calls on other Khan actions to prepare a list of changed files.                                                                                                     |
+| [`./actions/verify-per-package/action.yml`](./actions/verify-per-package/action.yml) | This ts action contains its logic to [`./src/main.ts`](./src/main.ts). It checks for packages corresponding to changed files, then determines if there is a match for each in changesets. |
 
 ## When Making Changes
 

@@ -44,16 +44,7 @@ runs:
         extensions: ${{ inputs.exclude_extensions }}
         globs: ${{ inputs.exclude_globs }}
 
-    # Checkout necessary files to run next action
-    - uses: actions/checkout@v4
-      with:
-        repository: Khan/changeset-per-package
-        path: changeset-per-package
-        sparse-checkout: |
-          changeset-per-package/*
-        sparse-checkout-cone-mode: false
-
     - name: Veryify changeset entries
-      uses: ./changeset-per-package/changeset-per-package
+      uses: ./actions/verify-per-package
       with:
         changed_files: ${{ steps.match.outputs.filtered }}
