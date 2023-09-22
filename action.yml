@@ -3,48 +3,10 @@ description: 'Fail if there is not a valid changeset entry for each package.'
 author: 'Ned Redmond'
 
 inputs:
-  exclude_files_and_dirs:
-    description:
-      list of comma-separated paths (files or directories ending in /) that
-      don't need a changeset when changed. Default .github/
-    required: false
-    default: .github/
-  exclude_extensions:
-    description:
-      a list of comma-separated extensions that don't need a changeset when
-      changed. Default <empty>
-    required: false
-    default: ''
-  exclude_globs:
-    description:
-      a list of comma-separated globs (using picomatch syntax) that don't need a
-      changeset when changed. Default <empty>
-    required: false
-    default: ''
+  changed_files:
+    description: list of changed files
+    required: true
 
 runs:
-  using: 'composite'
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Get changed files
-      uses: Khan/actions@get-changed-files-v1
-      id: changed
-
-    - name: Filter out files that don't need a changeset
-      uses: Khan/actions@filter-files-v0
-      id: match
-      with:
-        changed-files: ${{ steps.changed.outputs.files }}
-        invert: true
-        files: ${{ inputs.exclude_files_and_dirs }}
-        extensions: ${{ inputs.exclude_extensions }}
-        globs: ${{ inputs.exclude_globs }}
-
-    - name: Veryify changeset entries
-      uses: ./actions/verify-per-package
-      with:
-        changed_files: ${{ steps.match.outputs.filtered }}
+  using: node20
+  main: dist/index.js

@@ -45,10 +45,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        id: checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Test Local Action
-        id: test-action
+      - name: Get changed files
+        uses: Khan/actions@get-changed-files-v1
+        id: changed
+
+      - name: Filter out files that don't need a changeset
+        uses: Khan/actions@filter-files-v0
+        id: match
+        with:
+          changed-files: ${{ steps.changed.outputs.files }}
+          invert: true
+
+      - name: Verify changeset entries
         uses: ./
+        with:
+          changed_files: ${{ steps.match.outputs.filtered }}
