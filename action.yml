@@ -47,7 +47,7 @@ runs:
     # Checkout necessary files to run next action
     - uses: actions/checkout@v4
       with:
-        repository: Khan/changeset-per-package
+        repository: Khan/changeset-per-package@${{ github.action_ref }}
         path: ${{github.run_id}}
         sparse-checkout: |
           verify
