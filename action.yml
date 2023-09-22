@@ -50,7 +50,7 @@ runs:
         repository: Khan/changeset-per-package
         path: test
         sparse-checkout: |
-          verify/*
+          verify
 
     - name: Veryify changeset entries
       uses: ./test/verify
