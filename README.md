@@ -56,7 +56,7 @@ steps:
       changed-files: ${{ steps.changed.outputs.files }}
 
   - name: Verify changeset entries
-    uses: Khan/changeset-per-package@v0.0.0
+    uses: Khan/changeset-per-package@v1.0.0
     with:
       changed_files: ${{ steps.match.outputs.filtered }}
 ```
