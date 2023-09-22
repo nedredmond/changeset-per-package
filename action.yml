@@ -53,6 +53,6 @@ runs:
           verify
 
     - name: Veryify changeset entries
-      uses: ./${{github.run_id}}/verify
+      uses: './${{github.run_id}}/verify'
       with:
         changed_files: ${{ steps.match.outputs.filtered }}
