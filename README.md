@@ -5,14 +5,9 @@
 ![CI](https://github.com/actions/typescript-action/actions/workflows/ci.yml/badge.svg)
 
 This action validates that there is a changeset entry for each package that has
-been changed.
-
-This repository has two action files:
-
-| File                                         | Description                                                                                                                                                                               |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`./action.yml`](./action.yml)               | This composite action calls on other Khan actions to prepare a list of changed files.                                                                                                     |
-| [`./verify/action.yml`](./verify/action.yml) | This ts action contains its logic to [`./src/main.ts`](./src/main.ts). It checks for packages corresponding to changed files, then determines if there is a match for each in changesets. |
+been changed for a given list of files. It is intended to be used in a workflow
+with other actions from the [Khan/actions](https://github.com/Khan/actions)
+repo.
 
 ## When Making Changes
 
@@ -41,5 +36,27 @@ steps:
 
   - name: Verify Changeset Per Package
     id: changeset-per-package
-    uses: Khan/changeset-per-package@v0.0.0 # Commit with the `v1` tag
+    uses: Khan/changeset-per-package@v0.0.0
+
+steps:
+  - name: Checkout with history
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0 # This is necessary! Checks out the history so that we can
+                     # get the changset entries diff.
+
+  - name: Get changed files
+    uses: Khan/actions@get-changed-files-v1
+    id: changed
+
+  - name: Filter out files that don't need changeset
+    uses: Khan/actions@filter-files-v0
+    id: match
+    with:
+      changed-files: ${{ steps.changed.outputs.files }}
+
+  - name: Verify changeset entries
+    uses: Khan/changeset-per-package@v0.0.0
+    with:
+      changed_files: ${{ steps.match.outputs.filtered }}
 ```
