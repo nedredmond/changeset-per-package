@@ -61,7 +61,7 @@ jobs:
           changed-files: ${{ steps.changed.outputs.files }}
           invert: true
 
-      - name: Veryify changeset entries
+      - name: Verify changeset entries
         uses: ./
         with:
           changed_files: ${{ steps.match.outputs.filtered }}
