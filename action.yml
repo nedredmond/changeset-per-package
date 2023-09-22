@@ -44,7 +44,15 @@ runs:
         extensions: ${{ inputs.exclude_extensions }}
         globs: ${{ inputs.exclude_globs }}
 
+    # Checkout necessary files to run next action
+    - uses: actions/checkout@v4
+      with:
+        repository: Khan/changeset-per-package
+        path: test
+        sparse-checkout: |
+          verify/*
+
     - name: Veryify changeset entries
-      uses: Khan/changeset-per-package/verify@v0.0.0
+      uses: ./test/verify
       with:
         changed_files: ${{ steps.match.outputs.filtered }}
