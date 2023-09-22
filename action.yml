@@ -48,11 +48,11 @@ runs:
     - uses: actions/checkout@v4
       with:
         repository: Khan/changeset-per-package@${{ github.action_ref }}
-        path: '${{github.run_id}}'
+        path: changeset-per-package
         sparse-checkout: |
           verify
 
     - name: Veryify changeset entries
-      uses: './${{github.run_id}}/verify'
+      uses: ./changeset-per-package/verify
       with:
         changed_files: ${{ steps.match.outputs.filtered }}
