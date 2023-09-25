@@ -53,6 +53,21 @@ describe('action', () => {
 
   it('completes when there is a changeset entry for every package', async () => {
     // Arrange
+    jest.spyOn(utils, 'getChangesets').mockImplementation(
+      async (): Promise<utils.Changesets> =>
+        Promise.resolve({
+          releases: [
+            {
+              name: '@owner/pkg1',
+              type: 'patch'
+            },
+            {
+              name: '@owner/pkgB',
+              type: 'patch'
+            }
+          ]
+        })
+    )
     Object.defineProperty(github, 'context', {
       value: {
         ...originalContext,
