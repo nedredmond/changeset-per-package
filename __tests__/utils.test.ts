@@ -1,5 +1,8 @@
-import { getBaseAndHead } from '../src/utils'
+import { getBaseAndHead, getChangesets } from '../src/utils'
 import { Context } from '@actions/github/lib/context'
+
+import fs from 'fs/promises'
+jest.mock('fs/promises')
 
 const contextData: Context = {
   payload: {},
@@ -135,6 +138,15 @@ describe('utils', () => {
         }
       }
       expect(getBaseAndHead(context)).toEqual([])
+    })
+  })
+  describe('getChangesets', () => {
+    it('returns the parsed changesets file', async () => {
+      fs.readFile = jest
+        .fn()
+        .mockResolvedValue(JSON.stringify({ releases: [] }))
+      const changesets = await getChangesets('changesets.json')
+      expect(changesets).toEqual({ releases: [] })
     })
   })
 })

@@ -10960,14 +10960,8 @@ async function run() {
         // parse out the package names from the pretty-printed changeset output
         let changesetEntries = [];
         if (changesetResult.exitCode !== 1) {
-            try {
-                const changesets = await (0, utils_1.getChangesets)(filePath);
-                changesetEntries = changesets.releases.map(release => release.name);
-            }
-            catch (error) {
-                core.setFailed(`Error parsing changeset file: ${error}`);
-                return;
-            }
+            const changesets = await (0, utils_1.getChangesets)(filePath);
+            changesetEntries = changesets.releases.map(release => release.name);
         }
         const changesetEntriesNeeded = packageNamesArray.filter(packageName => !changesetEntries.includes(packageName));
         if (changesetEntriesNeeded.length) {
