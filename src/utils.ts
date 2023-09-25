@@ -1,4 +1,5 @@
 import type { Context } from '@actions/github/lib/context'
+import * as fs from 'fs/promises'
 
 export const getBaseAndHead = (context: Context): string[] => {
   switch (context.eventName) {
@@ -12,4 +13,20 @@ export const getBaseAndHead = (context: Context): string[] => {
       return [context.payload.before, context.payload.after]
   }
   return []
+}
+
+type Release = {
+  name: string
+  type: 'major' | 'minor' | 'patch'
+  oldVersion?: string
+  changeSets?: string[]
+}
+
+export type Changesets = {
+  releases: Release[]
+}
+
+export const getChangesets = async (path: string): Promise<Changesets> => {
+  const changesetsFile = await fs.readFile(path, 'utf8')
+  return JSON.parse(changesetsFile) as Changesets
 }
