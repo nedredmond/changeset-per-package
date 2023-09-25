@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as github from '@actions/github'
-import { getBaseAndHead, getChangesets } from './utils'
+import { getBaseAndHead } from './utils'
 
 /**
  * The main function for the action.
@@ -77,10 +77,9 @@ export async function run(): Promise<void> {
 
     // right now, the only way to access JSON output is to create a file,
     //   so we are just going to work with the pretty-printed output
-    const filePath = `${github.context.runId}.json`
     await exec.exec(`yarn add @changesets/cli@latest -W`)
     const changesetResult = await exec.getExecOutput(
-      `yarn changeset status --since origin/${base} --output ${filePath}`,
+      `yarn changeset status --since origin/${base}`,
       undefined,
       { ignoreReturnCode: true }
     )
@@ -92,16 +91,14 @@ export async function run(): Promise<void> {
     }
 
     // parse out the package names from the pretty-printed changeset output
-    let changesetEntries: string[] = []
-    if (changesetResult.exitCode !== 1) {
-      try {
-        const changesets = await getChangesets(filePath)
-        changesetEntries = changesets.releases.map(release => release.name)
-      } catch (error) {
-        core.setFailed(`Error parsing changeset file: ${error}`)
-        return
-      }
-    }
+    const changesetEntries =
+      changesetResult.exitCode === 1
+        ? []
+        : changesetResult.stdout
+            .split('\n')
+            .map((line: string) => line.trim())
+            .filter((line: string) => line.startsWith('🦋  - '))
+            .map((line: string) => line.replace('🦋  - ', ''))
 
     const changesetEntriesNeeded = packageNamesArray.filter(
       packageName => !changesetEntries.includes(packageName)

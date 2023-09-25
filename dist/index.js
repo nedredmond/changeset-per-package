@@ -10951,24 +10951,19 @@ async function run() {
         }
         // right now, the only way to access JSON output is to create a file,
         //   so we are just going to work with the pretty-printed output
-        const filePath = `${github.context.runId}.json`;
         await exec.exec(`yarn add @changesets/cli@latest -W`);
-        const changesetResult = await exec.getExecOutput(`yarn changeset status --since origin/${base} --output ${filePath}`, undefined, { ignoreReturnCode: true });
+        const changesetResult = await exec.getExecOutput(`yarn changeset status --since origin/${base}`, undefined, { ignoreReturnCode: true });
         if (changesetResult.exitCode === 1) {
             core.debug(`Changeset status failed; that could mean there is no changeset file, or that there was an error.`);
         }
         // parse out the package names from the pretty-printed changeset output
-        let changesetEntries = [];
-        if (changesetResult.exitCode !== 1) {
-            try {
-                const changesets = await (0, utils_1.getChangesets)(filePath);
-                changesetEntries = changesets.releases.map(release => release.name);
-            }
-            catch (error) {
-                core.setFailed(`Error parsing changeset file: ${error}`);
-                return;
-            }
-        }
+        const changesetEntries = changesetResult.exitCode === 1
+            ? []
+            : changesetResult.stdout
+                .split('\n')
+                .map((line) => line.trim())
+                .filter((line) => line.startsWith('🦋  - '))
+                .map((line) => line.replace('🦋  - ', ''));
         const changesetEntriesNeeded = packageNamesArray.filter(packageName => !changesetEntries.includes(packageName));
         if (changesetEntriesNeeded.length) {
             core.setFailed(`Changeset entry required for ${changesetEntriesNeeded.join(', ')} because there have been changes since the last release.`);
@@ -10988,36 +10983,12 @@ exports.run = run;
 /***/ }),
 
 /***/ 1314:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getChangesets = exports.getBaseAndHead = void 0;
-const fs = __importStar(__nccwpck_require__(3292));
+exports.getBaseAndHead = void 0;
 const getBaseAndHead = (context) => {
     switch (context.eventName) {
         case 'pull_request_target':
@@ -11032,11 +11003,6 @@ const getBaseAndHead = (context) => {
     return [];
 };
 exports.getBaseAndHead = getBaseAndHead;
-const getChangesets = async (path) => {
-    const changesetsFile = await fs.readFile(path, 'utf8');
-    return JSON.parse(changesetsFile);
-};
-exports.getChangesets = getChangesets;
 
 
 /***/ }),
@@ -11086,14 +11052,6 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
-
-/***/ }),
-
-/***/ 3292:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("fs/promises");
 
 /***/ }),
 
