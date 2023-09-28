@@ -12,27 +12,11 @@ import * as github from '@actions/github'
 import * as main from '../src/main'
 import * as utils from '../src/utils'
 
-// Mock the GitHub Actions core library
+// Mock the GitHub Actions library
 const infoMock = jest.spyOn(core, 'info')
-const setFailedMock = jest
-  .spyOn(core, 'setFailed')
-  .mockImplementation(console.debug)
-const inputMock = jest
-  .spyOn(core, 'getInput')
-  .mockImplementation((name: string): string => {
-    switch (name) {
-      case 'changed_files':
-        return JSON.stringify([
-          './packages/pkg1/file1.css',
-          './packages/pkgB/file2.tsx'
-        ])
-      default:
-        return ''
-    }
-  })
-
-jest.spyOn(exec, 'exec').mockImplementation(async () => 0)
-const getExecOutputMock = jest.spyOn(exec, 'getExecOutput')
+const setFailedMock = jest.spyOn(core, 'setFailed')
+const inputMock = jest.spyOn(core, 'getInput')
+const execSpy = jest.spyOn(exec, 'exec')
 
 const originalContext = github.context
 
@@ -41,7 +25,18 @@ const runMock = jest.spyOn(main, 'run')
 
 describe('action', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    inputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'changed_files':
+          return JSON.stringify([
+            './packages/pkg1/file1.css',
+            './packages/pkgB/file2.tsx'
+          ])
+        default:
+          return ''
+      }
+    })
+    setFailedMock.mockImplementation(console.debug)
   })
 
   afterEach(() => {
@@ -84,7 +79,8 @@ describe('action', () => {
         }
       }
     })
-    getExecOutputMock
+    jest
+      .spyOn(exec, 'getExecOutput')
       // workspaces info
       .mockImplementationOnce(async () => ({
         stdout: JSON.stringify({
@@ -98,6 +94,12 @@ describe('action', () => {
             }
           })
         }),
+        stderr: '',
+        exitCode: 0
+      }))
+      // check changeset installed
+      .mockImplementationOnce(async () => ({
+        stdout: '',
         stderr: '',
         exitCode: 0
       }))
@@ -123,6 +125,7 @@ describe('action', () => {
     // Assert
     expect(runMock).toHaveReturned()
     expect(setFailedMock).not.toHaveBeenCalled()
+    expect(execSpy).not.toHaveBeenCalled()
 
     // Verify that all of the core library functions were called correctly
     expect(infoMock).toHaveBeenNthCalledWith(
@@ -133,6 +136,74 @@ describe('action', () => {
       2,
       'All packages have changeset entries'
     )
+  })
+
+  it('installs changeset when not installed', async () => {
+    // Arrange
+    jest.spyOn(utils, 'getChangesets').mockImplementation(
+      async (): Promise<utils.Changesets> =>
+        Promise.resolve({
+          releases: [
+            {
+              name: '@owner/pkg1',
+              type: 'patch'
+            },
+            {
+              name: '@owner/pkgB',
+              type: 'patch'
+            }
+          ]
+        })
+    )
+    Object.defineProperty(github, 'context', {
+      value: {
+        ...originalContext,
+        eventName: 'pull_request',
+        payload: {
+          pull_request: {
+            head: {
+              sha: '1234567890'
+            },
+            base: {
+              ref: 'main'
+            }
+          }
+        }
+      }
+    })
+    jest
+      .spyOn(exec, 'getExecOutput')
+      // workspaces info
+      .mockImplementationOnce(async () => ({
+        stdout: JSON.stringify({
+          type: 'log',
+          data: JSON.stringify({
+            '@owner/pkg1': {
+              location: './packages/pkg1'
+            },
+            '@owner/pkgB': {
+              location: './packages/pkgB'
+            }
+          })
+        }),
+        stderr: '',
+        exitCode: 0
+      }))
+      // check changeset installed
+      .mockImplementationOnce(async () => ({
+        stdout: '',
+        stderr: '',
+        exitCode: 1
+      }))
+
+    // Act
+    await main.run()
+
+    // Assert
+    expect(runMock).toHaveReturned()
+
+    // Verify that all of the core library functions were called correctly
+    expect(execSpy).toHaveBeenCalledWith('yarn add @changesets/cli@latest -W')
   })
 
   it('fails when there are packages that need changeset entries', async () => {
@@ -153,7 +224,8 @@ describe('action', () => {
         }
       }
     })
-    getExecOutputMock
+    jest
+      .spyOn(exec, 'getExecOutput')
       // workspaces info
       .mockImplementationOnce(async () => ({
         stdout: JSON.stringify({
@@ -167,6 +239,12 @@ describe('action', () => {
             }
           })
         }),
+        stderr: '',
+        exitCode: 0
+      }))
+      // changeset installed
+      .mockImplementationOnce(async () => ({
+        stdout: '',
         stderr: '',
         exitCode: 0
       }))
@@ -244,7 +322,8 @@ describe('action', () => {
         }
       }
     })
-    getExecOutputMock
+    jest
+      .spyOn(exec, 'getExecOutput')
       // workspaces info
       .mockImplementationOnce(async () => ({
         stdout: JSON.stringify({
@@ -291,7 +370,8 @@ describe('action', () => {
         }
       }
     })
-    getExecOutputMock
+    jest
+      .spyOn(exec, 'getExecOutput')
       // workspaces info
       .mockImplementationOnce(async () => ({
         stdout: '',
@@ -326,7 +406,8 @@ describe('action', () => {
         }
       }
     })
-    getExecOutputMock
+    jest
+      .spyOn(exec, 'getExecOutput')
       // workspaces info
       .mockImplementationOnce(async () => ({
         stdout: JSON.stringify({
@@ -340,6 +421,12 @@ describe('action', () => {
             }
           })
         }),
+        stderr: '',
+        exitCode: 0
+      }))
+      // changeset installed
+      .mockImplementationOnce(async () => ({
+        stdout: '',
         stderr: '',
         exitCode: 0
       }))

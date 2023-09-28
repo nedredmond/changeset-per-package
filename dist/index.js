@@ -10949,10 +10949,12 @@ async function run() {
                 "Please submit an issue on this action's GitHub repo if you believe this in correct.");
             return;
         }
-        // right now, the only way to access JSON output is to create a file,
-        //   so we are just going to work with the pretty-printed output
+        const changesetExists = await exec.getExecOutput(`yarn changeset --version`, undefined, { ignoreReturnCode: true });
+        if (changesetExists.exitCode === 1) {
+            core.info('Installing changeset CLI');
+            await exec.exec(`yarn add @changesets/cli@latest -W`);
+        }
         const filePath = `${github.context.runId}.json`;
-        await exec.exec(`yarn add @changesets/cli@latest -W`);
         const changesetResult = await exec.getExecOutput(`yarn changeset status --since origin/${base} --output ${filePath}`, undefined, { ignoreReturnCode: true });
         if (changesetResult.exitCode === 1) {
             core.debug(`Changeset status failed; that could mean there is no changeset file, or that there was an error.`);

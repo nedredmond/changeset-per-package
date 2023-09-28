@@ -75,10 +75,17 @@ export async function run(): Promise<void> {
       return
     }
 
-    // right now, the only way to access JSON output is to create a file,
-    //   so we are just going to work with the pretty-printed output
+    const changesetExists = await exec.getExecOutput(
+      `yarn changeset --version`,
+      undefined,
+      { ignoreReturnCode: true }
+    )
+    if (changesetExists.exitCode === 1) {
+      core.info('Installing changeset CLI')
+      await exec.exec(`yarn add @changesets/cli@latest -W`)
+    }
+
     const filePath = `${github.context.runId}.json`
-    await exec.exec(`yarn add @changesets/cli@latest -W`)
     const changesetResult = await exec.getExecOutput(
       `yarn changeset status --since origin/${base} --output ${filePath}`,
       undefined,
