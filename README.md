@@ -30,15 +30,6 @@ hash.
 
 ```yaml
 steps:
-  - name: Checkout
-    id: checkout
-    uses: actions/checkout@v3
-
-  - name: Verify Changeset Per Package
-    id: changeset-per-package
-    uses: Khan/changeset-per-package@v0.0.0
-
-steps:
   - name: Checkout with history
     uses: actions/checkout@v4
     with:
