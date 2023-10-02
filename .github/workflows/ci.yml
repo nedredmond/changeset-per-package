@@ -65,4 +65,4 @@ jobs:
         uses: ./
         with:
           changed_files: ${{ steps.match.outputs.filtered }}
-          ignorePackages: '["mock-workspace"]'
+          ignore_packages: '["mock-workspace"]'
