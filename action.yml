@@ -6,6 +6,10 @@ inputs:
   changed_files:
     description: list of changed files
     required: true
+  ignore_packages:
+    description: list of packages to ignore
+    required: false
+    default: []
 
 runs:
   using: node20

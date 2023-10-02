@@ -12,6 +12,7 @@ export async function run(): Promise<void> {
     const { context } = github
 
     const changedFiles = JSON.parse(core.getInput('changed_files'))
+    const ignorePackages = JSON.parse(core.getInput('ignore_packages'))
 
     if (!changedFiles.length) {
       core.info('No changed files found. Skipping.')
@@ -36,10 +37,12 @@ export async function run(): Promise<void> {
     )
 
     const workspacesInfo = JSON.parse(JSON.parse(workspacesResult.stdout).data)
-    const workspaces = Object.keys(workspacesInfo).map(name => ({
-      name,
-      ...workspacesInfo[name]
-    }))
+    const workspaces = Object.keys(workspacesInfo)
+      .filter(name => !ignorePackages.includes(name))
+      .map(name => ({
+        name,
+        ...workspacesInfo[name]
+      }))
     // get packages in changed directories
     iterFiles: for (const file of changedFiles) {
       // remove file name from path

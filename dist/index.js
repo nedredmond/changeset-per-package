@@ -10904,6 +10904,7 @@ async function run() {
     try {
         const { context } = github;
         const changedFiles = JSON.parse(core.getInput('changed_files'));
+        const ignorePackages = JSON.parse(core.getInput('ignore_packages'));
         if (!changedFiles.length) {
             core.info('No changed files found. Skipping.');
             return;
@@ -10917,7 +10918,9 @@ async function run() {
         //   a future enhancement would be to determine the package manager and use that
         const workspacesResult = await exec.getExecOutput(`yarn workspaces --json info`);
         const workspacesInfo = JSON.parse(JSON.parse(workspacesResult.stdout).data);
-        const workspaces = Object.keys(workspacesInfo).map(name => ({
+        const workspaces = Object.keys(workspacesInfo)
+            .filter(name => !ignorePackages.includes(name))
+            .map(name => ({
             name,
             ...workspacesInfo[name]
         }));

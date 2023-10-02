@@ -30,8 +30,12 @@ describe('action', () => {
         case 'changed_files':
           return JSON.stringify([
             './packages/pkg1/file1.css',
-            './packages/pkgB/file2.tsx'
+            './packages/pkgB/file2.tsx',
+            './packages/pkgC/file3.ts', // should be ignored
+            './packages/pkg3/file4.ts' // should be ignored
           ])
+        case 'ignore_packages':
+          return JSON.stringify(['@owner/pkg3', '@owner/pkgC'])
         default:
           return ''
       }
