@@ -9,7 +9,7 @@ inputs:
   ignore_packages:
     description: list of packages to ignore
     required: false
-    default: []
+    default: '[]'
 
 runs:
   using: node20
