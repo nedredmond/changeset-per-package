@@ -45,6 +45,10 @@ steps:
     id: match
     with:
       changed-files: ${{ steps.changed.outputs.files }}
+      files: packages/
+      globs: "!(**/__tests__/**), !(**/__mocks__/**)"
+      matchAllGlobs: true
+      conjunctive: true
 
   - name: Verify changeset entries
     uses: Khan/changeset-per-package@v1.0.0
